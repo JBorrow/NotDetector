@@ -1,12 +1,9 @@
 <?php
 
 require_once("article.php");
+require_once("creator.php");
 
-$article = new Article('news', 1);
-
-$article->content = 'I can\'t believe I was such a nob';
-$article->nicePrinter();
-$article->update();
+creator();
 
 $new = new Article('news', 1);
 

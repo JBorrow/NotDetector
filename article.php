@@ -52,6 +52,20 @@ class Article
         $stmt->bind_param('ssiss', $this->title, $this->content, $this->date,
                           $this->author, $this->imagenames);
         $stmt->execute();
+        
+        //now we need to get id for object
+        $sql = "SELECT id FROM $this->table WHERE title=(?) AND content=(?) AND
+        date=(?) AND author=(?)";
+        $stmt = $mysql->prepare($sql);
+        $stmt->bind_param('ssis', $this->title, $this->content,
+        $this->date, $this->author);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $grabbed = $result->fetch_array();
+        $id = $grabbed[0];
+        $this->id = $id;
+
         $mysql->close();
 
         return true;
@@ -154,7 +168,10 @@ class Article
         $date = date("D jS F Y", $this->date);
         
         echo "<h1>$this->title</h1>";
-        echo "<h3>By: $this->author, Date: $date</h3>";
+        if ($this->author) {
+            echo "<h3>Author: $this->author</h3>";
+        }
+        echo "<h3>Date: $date</h3>";
         
         echo $this->content;
 
