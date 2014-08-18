@@ -43,10 +43,16 @@ class Article
 
         //creates an entry in the table from the info already present
         $sql = "INSERT INTO $this->table (title, content, date, author,
-        imagenames) VALUES ('$this->title', '$this->content', '$this->date',
-        '$this->author', '$this->imagenames')";
+        imagenames) VALUES (?,?,?,?,?)";
+        
         $mysql = connect();
-        $mysql->query($sql);
+        
+        //prevent sql injection
+        $stmt = $mysql->prepare($sql);
+        $stmt->bind_param('ssiss', $this->title, $this->content, $this->date,
+                          $this->author, $this->imagenames);
+        $stmt->execute();
+
         $mysql->close();
 
         return true;
@@ -79,12 +85,15 @@ class Article
     {
         //updates a given id with the information in the table
 
-        $sql = "UPDATE $this->table SET 'title'=$this->title,
-        'content'=$this->content, 'date'=$this->date, 'author'=$this->author,
-        'imagenames'=$this->imagenames WHERE id=$this->id";
+        $sql = "UPDATE $this->table SET 'title'=?, 'content'=?, 'date'=?,
+        'author'=?, 'imagenames'=? WHERE id=?";
 
         $mysql = connect();
-        $mysql->query($sql);
+        //prevent sql injection
+        $stmt = $mysql->prepare($sql);
+        $stmt->bind_param("ssissi", $this->title, $this->content, $this->date,
+                          $this->author, $this->imagenames, $this->id);
+        $stmt->execute();
         $mysql->close();
 
         return true;
