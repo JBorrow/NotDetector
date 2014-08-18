@@ -157,4 +157,5 @@ class Article
         echo $this->content;
 
         return true;
+    }
 }   
