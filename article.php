@@ -4,7 +4,8 @@ require_once("connect.php");
 
 //This class is used to interface with the database.
 
-class Article {
+class Article
+{
     //set public values that are used to view information/set information
     //date should always be as a unix timestamp when passed to this class
 
