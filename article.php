@@ -19,17 +19,11 @@ class Article
 
     //create constructor that grabs from db
     
-    public function __construct($table, $id=false, $make=false)
+    public function __construct($table, $id=false)
     {
         $this->table = $table;
-        if ($make) {
-            $this->create();
-            //now we need to get the id
-            $sql = "SELECT id FROM $this->table ORDER BY id DESC LIMIT 0, 1";
-            $mysql = connect();
-            $mysql->query($sql);
-            $mysql->close();
-            
+        if (!$id) {
+            //We shouldn't do anything here because we need to populate first
             return 1;
         } else {
             $this->id = $id;
@@ -124,4 +118,20 @@ class Article
         return true;
     }
 
+    public function tableExists($table)
+    {
+        //checks if table exists. returns true or false.
+
+        $sql = "IF EXISTS (SELECT * FROM $table)";
+
+        $mysql = connect();
+        $query = $mysql->query($sql);
+        $mysql->close();
+
+        if ($query) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }   

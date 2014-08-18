@@ -9,5 +9,10 @@
 function connect()
 {
     $mysql = new mysqli("localhost", "root", "root", "test");
-    return $mysqli;
+    
+    if ($mysql) {
+        return $mysql;
+    } else {
+        die("Could not connect, MySQL error:" . $mysql->error());
+    }
 }
