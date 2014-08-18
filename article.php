@@ -18,19 +18,38 @@ class Article {
 
     //create constructor that grabs from db
     
-    
+    public function __construct($table, $id=false, $make=false)
+    {
+        $this->table = $table;
+        if ($make) {
+            $this->create();
+            //now we need to get the id
+            $sql = "SELECT id FROM $this->table ORDER BY id DESC LIMIT 0, 1";
+            $mysql = connect();
+            $mysql->query($sql);
+            $mysql->close();
+            
+            return 1;
+        } else {
+            $this->id = $id;
+            $this->grab();
+
+            return 2;
+        }
+    }
 
     //input/output functions
 
-    public function create()
+    private function create()
     {   
         if (!isset($date)) {
             $date = time();
         }
 
         //creates an entry in the table from the info already present
-        $sql = "INSERT INTO $table (title, content, date, author, imagenames)
-        VALUES ('$title', '$content', '$date', '$author', '$imagenames')";
+        $sql = "INSERT INTO $this->table (title, content, date, author,
+        imagenames) VALUES ('$this->title', '$this->content', '$this->date',
+        '$this->author', '$this->imagenames')";
         $mysql = connect();
         $mysql->query($sql);
         $mysql->close();
@@ -38,38 +57,36 @@ class Article {
         return true;
     }
 
-    public function grab()
+    private function grab()
     {
         //grabs info from the db and stores them in the public variables
 
         $mysql = connect();
         
-        $sql = "SELECT 'title' FROM $table WHERE id='$id'";
-        $title = $mysql->query($sql);
+        $data = $this->dataToArray();
+        $used = array('title','content','date','author','imagenames');
+        
+        foreach ($used as $item) {
+            $sql = "SELECT '$item' FROM $this->table WHERE id='$this->id'";
+            $data[$item] = $mysql->query($sql);
+        }
 
-        $sql = "SELECT 'content' FROM $table WHERE id='$id'";
-        $content = $mysql->query($sql);
-
-        $sql = "SELECT 'date' FROM $table WHERE id='$id'";
-        $date = $mysql->query($sql);
-
-        $sql = "SELECT 'author' FROM $table WHERE id='$id'";
-        $author = $mysql->query($sql);
-
-        $sql = "SELECT 'imagenames' FROM $table WHERE id='$id'";
-        $imagenames = $mysql->query($sql);
+        //now place in variable names
+        
+        $this->unpackArray($data);
 
         $mysql->close();
 
         return true;
     }
 
-    public function update()
+    private function update()
     {
         //updates a given id with the information in the table
 
-        $sql = "UPDATE $table SET 'title'=$title, 'content'=$content,
-        'date'=$date, 'author'=$author, 'imagenames'=$imagenames WHERE id=$id";
+        $sql = "UPDATE $this->table SET 'title'=$this->title,
+        'content'=$this->content, 'date'=$this->date, 'author'=$this->author,
+        'imagenames'=$this->imagenames WHERE id=$this->id";
 
         $mysql = connect();
         $mysql->query($sql);
@@ -77,4 +94,33 @@ class Article {
 
         return true;
     }
+
+    public function dataToArray()
+    {
+        //this returns an array we can use to give to people
+
+        return array(
+            'title' => $this->title,
+            'content' => $this->content,
+            'date' => $this->date,
+            'author' => $this->author,
+            'imagenames' => $this->imagenames,
+            'id' => $this->id,
+            'table' => $this->table,
+        );
+    }
+
+    public function unpackArray($data)
+    {
+        $this->title = $data['title'];
+        $this->content = $data['content'];
+        $this->date = $data['date'];
+        $this->author = $data['author'];
+        $this->imagenames = $data['imagenames'];
+        $this->id = $data['id'];
+        $this->table = $data['table'];
+
+        return true;
+    }
+
 }   
