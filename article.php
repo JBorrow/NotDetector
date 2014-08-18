@@ -35,7 +35,7 @@ class Article
 
     //input/output functions
 
-    private function create()
+    public function create()
     {   
         if (!isset($date)) {
             $date = time();
@@ -52,7 +52,6 @@ class Article
         $stmt->bind_param('ssiss', $this->title, $this->content, $this->date,
                           $this->author, $this->imagenames);
         $stmt->execute();
-
         $mysql->close();
 
         return true;
@@ -68,8 +67,11 @@ class Article
         $used = array('title','content','date','author','imagenames');
         
         foreach ($used as $item) {
-            $sql = "SELECT '$item' FROM $this->table WHERE id='$this->id'";
-            $data[$item] = $mysql->query($sql);
+            $sql = "SELECT $item FROM $this->table WHERE id=$this->id";
+            $rawdata = $mysql->query($sql);
+            $rawdata = $rawdata->fetch_array();
+            //returns an array w/ one element
+            $data[$item] = $rawdata[0];
         }
 
         //now place in variable names
@@ -81,12 +83,12 @@ class Article
         return true;
     }
 
-    private function update()
+    public function update()
     {
         //updates a given id with the information in the table
 
-        $sql = "UPDATE $this->table SET 'title'=?, 'content'=?, 'date'=?,
-        'author'=?, 'imagenames'=? WHERE id=?";
+        $sql = "UPDATE $this->table SET title=(?), content=(?), date=(?),
+        author=(?), imagenames=(?) WHERE id=(?)";
 
         $mysql = connect();
         //prevent sql injection
@@ -150,7 +152,7 @@ class Article
         //bceause date is unix timestamp we need to convert first
         
         $date = date("D jS F Y", $this->date);
-
+        
         echo "<h1>$this->title</h1>";
         echo "<h3>By: $this->author, Date: $date</h3>";
         

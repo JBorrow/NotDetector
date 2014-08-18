@@ -1,26 +1,13 @@
 <?php
 
-require_once("Functions/connect.php");
-require_once("Functions/creator.php");
-require_once("Functions/article.php");
+require_once("article.php");
 
-creator();
+$article = new Article('news', 1);
 
-$article = new Article($news);
-
-$article->title = "testing title";
-
-$article->content = "testing content yo";
-
-$article->date = 100020
-
-$article->author = "josh";
-
-$article->imagenames = "";
-
-$article->create();
-
-$article->grab();
-
+$article->content = 'I can\'t believe I was such a nob';
 $article->nicePrinter();
+$article->update();
 
+$new = new Article('news', 1);
+
+$new->nicePrinter();
