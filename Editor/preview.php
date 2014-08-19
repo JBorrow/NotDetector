@@ -28,7 +28,7 @@
                                'islive' => htmlspecialchars($_POST['islive']),
                                'date' => $date);
             
-            $article = new Article('news');
+            $article = new Article($tab='news');
             $article->unpackArray($variables);
             $article->nicePrinter();
             //we're gonna change page so store article
