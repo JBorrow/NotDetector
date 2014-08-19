@@ -1,8 +1,6 @@
 <?php
 
-echo "<form name = 'dategrab' method = 'POST'>\n";
-
-echo "    <select name = 'day'>\n";
+echo "<select name = 'day'>\n";
 
 
         for ($i = 1; $i <= 31; $i++) {
@@ -17,9 +15,9 @@ echo "    <select name = 'day'>\n";
         }
 
 
-echo "    </select>\n";
+echo "</select>\n";
 
-echo "    <select name = 'month'>\n";
+echo "<select name = 'month'>\n";
 
         
         $currentmonth = date("F");
@@ -43,13 +41,15 @@ echo "    <select name = 'month'>\n";
             } else {
                 $selected = "";
             }
-            echo "<option$selected value = '$month'>$month</option>\n";
+            $value = array_search($month, $months) + 1;
+
+            echo "<option$selected value = '$value'>$month</option>\n";
         }
 
 
-echo "    </select>\n";
+echo "</select>\n";
 
-echo "    <select name = 'year'>\n";
+echo "<select name = 'year'>\n";
 
 
         $currentyear = date("Y");
@@ -64,6 +64,5 @@ echo "    <select name = 'year'>\n";
         }
 
 
-echo "    </select>\n";
+echo "</select>\n";
 
-echo "</form>\n";
