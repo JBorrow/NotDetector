@@ -19,9 +19,9 @@ class Article
 
     //create constructor that grabs from db
     
-    public function __construct($table, $id=false)
+    public function __construct($tab='news', $id=false)
     {
-        $this->table = $table;
+        $this->table = $tab;
         if (!$id) {
             //We shouldn't do anything here because we need to populate first
             return 1;
@@ -37,8 +37,11 @@ class Article
 
     public function create()
     {   
-        if (!isset($date)) {
+        if (!isset($this->date)) {
             $date = time();
+        }
+        if (!isset($this->table)) {
+            $this->table = 'news';
         }
 
         //creates an entry in the table from the info already present
@@ -49,16 +52,17 @@ class Article
         
         //prevent sql injection
         $stmt = $mysql->prepare($sql);
-        $stmt->bind_param('ssiss', $this->title, $this->content, $this->date,
-                          $this->author, $this->imagenames);
+        $stmt->bind_param('ssiss', $this->title, $this->content, 
+                          $this->date, $this->author, $this->imagenames);
         $stmt->execute();
+        
         
         //now we need to get id for object
         $sql = "SELECT id FROM $this->table WHERE title=(?) AND content=(?) AND
         date=(?) AND author=(?)";
         $stmt = $mysql->prepare($sql);
-        $stmt->bind_param('ssis', $this->title, $this->content,
-        $this->date, $this->author);
+        $stmt->bind_param('ssis', $this->title, $this->content, $this->date,
+                          $this->author);
         $stmt->execute();
         $result = $stmt->get_result();
         
