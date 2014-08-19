@@ -19,13 +19,22 @@
         session_start();
         
         $article = $_SESSION['article'];
-        $article->create();
+        
+        if (isset($_SESSION['editid'])) {
+            $article->id = $_SESSION['editid'];
+            $article->table = $_SESSION['edittable'];
+            $article->update();
+        } else {
+            $article->create();
+        }
 
         echo "<h1>Submitted to Database</h1>";
         
         include_once("edfunctions.php");
 
         listAll('news');
+
+        session_destroy();
 
         ?>
         

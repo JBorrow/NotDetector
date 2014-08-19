@@ -107,7 +107,7 @@ class Article
 
         $sql = "UPDATE $this->table SET title=(?), content=(?), date=(?),
         author=(?), imagenames=(?) WHERE id=(?)";
-
+        
         $mysql = connect();
         //prevent sql injection
         $stmt = $mysql->prepare($sql);
