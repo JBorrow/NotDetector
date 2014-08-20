@@ -4,10 +4,15 @@
 
 function inWhiteList($tablename)
 {
-    $wl = array('news');
+    $wl = getWhiteList();
     if (in_array($tablename, $wl)) {
         return true;
     } else {
         return false;
     }
+}
+
+function getWhiteList()
+{
+    return array('news');
 }
