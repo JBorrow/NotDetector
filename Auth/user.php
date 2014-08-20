@@ -13,13 +13,42 @@ class User
     private $password;
     public $lastLoggedIn;
     private $authString;
+    public $validUser;
 
-    function customHash($tobehashed)
+    public function __construct($username, $password)
+    {
+        $this->username = $username;
+        $this->password = $password;
+        //first see if user ok
+        $this->validUser = $this->validUser();
+        
+        if (!$this->validUser) {
+            die('Please enter a valid username/password combination 1');
+        }
+
+        //now see if password is okay
+
+        $this->grabAuthString();
+        
+        $validUserPass = $this->hashCheck();
+        
+        if (!$validUserPass) {
+            die('Please enter a valid username/password combination');
+        }
+
+        //woo they are a valid user, now we just need to grab lastLoggedIn
+
+        $this->grabLastLoggedIn();
+        
+        return true;
+    }
+
+    private function customHash($tobehashed)
     {
         return hash('sha512', hash('whirlpool', $tobehashed));
     }
 
-    function setUserPass($username, $password)
+    private function setUserPass($username, $password)
     {
         //used to pass user and pass to the variables
 
@@ -29,24 +58,24 @@ class User
         return true;
     }
 
-    function hashCheck()
+    private function hashCheck()
     {
         //hashes user and pass and checks it against the db
 
         $unhashed = $this->authString . $this->password;
-        $hash = customHash($unhashed);
+        $hash = $this->customHash($unhashed);
 
         //now we have to check against db
 
         $mysql = connect();
 
         $stmt = $mysql->prepare("SELECT hash FROM users WHERE user=?");
-        $stmt->bind_params('s', $this->username);
+        $stmt->bind_param('s', $this->username);
         $stmt->execute();
         $raw = $stmt->get_result();
         $truehasharray = $raw->fetch_array();
         $truehash = $truehasharray[0];
-
+        
         $mysql->close();
 
         if ($hash == $truehash) {
@@ -56,12 +85,12 @@ class User
         }
     }
 
-    function grabAuthString()
+    private function grabAuthString()
     {
         $mysql = connect();
 
         $stmt = $mysql->prepare("SELECT authstring FROM users WHERE user=?");
-        $stmt->bind_params('s', $this->username);
+        $stmt->bind_param('s', $this->username);
         $stmt->execute();
         $raw = $stmt->get_result();
         $array = $raw->fetch_array();
@@ -69,6 +98,48 @@ class User
         $mysql->close();
 
         //should be only one result
-        return $array[0];
+        $this->authString = $array[0];
+
+        return true;
+    }
+    
+    private function validUser()
+    {
+        $mysql = connect();
+        
+        $stmt = $mysql->prepare("SELECT user FROM users WHERE user=?");
+        $stmt->bind_param('s', $this->username);
+        $stmt->execute();
+        $raw = $stmt->get_result();
+        $array = $raw->fetch_array();
+        
+        $mysql->close();
+
+        if ($array) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private function grabLastLoggedIn()
+    {
+        $mysql = connect();
+
+        $stmt = $mysql->prepare("SElECT lastlog FROM users WHERE user=?");
+        $stmt->bind_param('s', $this->username);
+        $stmt->execute();
+        $raw = $stmt->get_result();
+        $array = $raw->fetch_array();
+
+        $this->lastLoggedIn = $array[0];
+
+        $stmt = $mysql->prepare("UPDATE users SET lastlog=? WHERE user=?");
+        $stmt->bind_param('is', time(), $this->username);
+        $stmt->execute();
+        
+        $mysql->close();
+
+        return true;
     }
 }
